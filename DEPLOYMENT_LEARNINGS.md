@@ -62,6 +62,14 @@ Broadcast deployment initially could not proceed because deployer balance was ze
 
 Only three contracts were deployed; the fourth item in the list was root relayer EOA (not contract). This caused verification expectation ambiguity.
 
+### 5) Turbopack workspace-root behavior can break Tailwind resolution
+
+With multiple lockfiles on the machine, Next/Turbopack inferred the workspace root from `/Users/openclaw/package-lock.json`. When a `turbopack.root` override was present in this setup, module resolution intermittently failed with `Can't resolve 'tailwindcss' in '/Users/openclaw/Documents/zkVVM'`.
+
+### 6) Server-side localStorage shim conflict caused runtime crash
+
+The runtime error `localStorage.getItem is not a function` was caused by a malformed `globalThis.localStorage` object in the server runtime context. A guarded shim in `next.config.ts` ensured `getItem` exists and stabilized rendering.
+
 ## Best Practices
 
 ### Deployment best practices
@@ -83,6 +91,8 @@ Only three contracts were deployed; the fourth item in the list was root relayer
 2. **Use contract verification as final acceptance gate** after deploy.
 3. **Treat API private keys as secrets**; never commit `.env` values.
 4. **Document explorer links** for all deployed artifacts for easy audit and debugging.
+5. **Track server/runtime globals while debugging** (especially `globalThis.localStorage`) when browser-like APIs appear in SSR errors.
+6. **Use A/B config testing for build issues** (toggle one config at a time, verify with logs, then keep only proven changes).
 
 ## Suggested Improvements for Next Iteration
 
